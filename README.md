@@ -10,7 +10,15 @@
 Initial intelligence gathering on the PwnTillDawn platform identified the target machine as a Windows system named `ElMariachi-PC` at the IP address `10.150.150.69`. The machine was listed with an "Active" status.
 
 ## 2. Scanning
-To map the attack surface and identify running services, a comprehensive Nmap scan was executed.
+To map the attack surface, the scanning phase was divided into broad host discovery and targeted service enumeration.
+
+Host Discovery: First, a ping sweep was executed across the subnet to identify live hosts without aggressively scanning ports.
+
+* Command: nmap -sn 10.150.150.0/24
+
+* Result: This confirmed the presence of active machines on the network and verified our specific target, 10.150.150.69, was reachable.
+
+Service Enumeration: Once the target was confirmed, a comprehensive port scan was executed to identify running services and potential entry points.
 
 **Command** :
 
