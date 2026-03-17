@@ -107,6 +107,9 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   5. Submitted the hash on the PwnTillDawn platform for FLAG67
   6. The platform confirmed the machine was successfully compromised by Dannyz on 17 March 2026.
 
+## 4. Escalate Privileges
+The initial access gained via the ThinVNC credentials provided sufficient system privileges to navigate the desktop and locate the target flag.
+
 ##  6. Clear Tracks
 To adhere to post-exploitation best practices and clean up the local attacker environment, the operational history within the Metasploit Framework was purged.
 
