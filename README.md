@@ -95,8 +95,9 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   ```
 
 **Exploit Results** : The path traversal attack successfully read the `ThinVnc.ini` file and extracted plain-text credentials.
-  *  Extracted Username: `desperado`
-  *  Extracted Password: `TooComplicatedToGuessMeAhahahahahahahh`
+
+  *  **Extracted Username** : `desperado`
+  *  **Extracted Password** : `TooComplicatedToGuessMeAhahahahahahahh`
 
 **System Compromise** : 
   1. Navigated a web browser to the ThinVNC portal at `http://10.150.150.69:60000`.
