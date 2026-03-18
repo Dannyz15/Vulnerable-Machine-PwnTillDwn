@@ -1,4 +1,4 @@
-# PwnTillDwn Walkthrough ElMariachi PC
+# PwnTillDwn Walkthrough ElMariachi-PC
 
 ## Target Profile
 * **Hostname: ElMariachi-PC** 
