@@ -7,12 +7,11 @@
 * **Objective: Retrieve FLAG67**
 
 ## 1. Reconnaissance
-Initial intelligence gathering on the PwnTillDawn platform identified the target machine as a Windows system named `ElMariachi-PC` at the IP address `10.150.150.69`. The machine was listed with an "Active" status.
+The engagement began with active network mapping and target identification to understand the scope of the PwnTillDawn environment.
 
-## 2. Scanning
-To map the attack surface, the scanning phase was divided into broad host discovery and targeted service enumeration.
+**Network Discovery**  
 
-**Host Discovery** : First, a ping sweep was executed across the subnet to identify live hosts without aggressively scanning ports.
+An initial ping sweep was executed across the subnet to identify live hosts without aggressively scanning ports.
 
 **Command** : 
 
@@ -20,11 +19,19 @@ To map the attack surface, the scanning phase was divided into broad host discov
 nmap -sn 10.150.150.0/24
 ```
 
-* **Result** : This confirmed the presence of active machines on the network and verified our specific target, 10.150.150.69, was reachable.
+* **Result** : This confirmed the presence of active machines on the network and verified our specific target was reachable.
 
-**Service Enumeration** : Once the target was confirmed, a comprehensive port scan was executed to identify running services and potential entry points.
+**Target Identification**  
 
-**Command** :
+Utilizing the PwnTillDawn platform, a specific target machine was selected for this engagement.
+* **Target IP Address** : 10.150.150.69.
+* **Operating System** : Windows.
+
+## 2. Scanning
+
+Once the target was confirmed as a live host, a comprehensive port and service scan was executed to identify potential entry points, host details, and vulnerabilities.
+
+**Service Enumeration Command** :
 
 ```bash
 nmap -sC -sV -p- 10.150.150.69
@@ -32,20 +39,28 @@ nmap -sC -sV -p- 10.150.150.69
 
 **Key Findings** :
 
-The scan completed in 762.16 seconds and discovered multiple open TCP ports :
+The intensive scan completed in 762.16 seconds. It discovered multiple open TCP ports :
 
   * `135/tcp` (msrpc)
   * `139/tcp` (netbios-ssn)
   * `445/tcp` (microsoft-ds)
   * `3389/tcp` (ms-wbt-server / Microsoft Terminal Services)
-  * `60000/tcp` (unknown service initially)
+  * `60000/tcp` (unknown)
+
+**Hostname Discovery** : 
+
+During the Nmap service enumeration, the SSL certificate and NTLM info scripts revealed the target's NetBIOS and DNS computer name to be `ElMariachi-PC`.
 
 **Vulnerability Identification** : 
 
-* While ports 135-3389 are standard Windows services, port `60000` returned unique HTTP fingerprint data. The Nmap NSE scripts revealed an HTTP 401 Access Denied response that exposed a Digest realm specifically for `"ThinVNC"`. This indicated a ThinVNC web server was running on a non-standard port.
+While most ports ran standard Windows services, port `60000/tcp` returned unique HTTP fingerprint data. The Nmap NSE scripts captured an `HTTP/1.1 401 Access Denied` response.
+
+**Crucial Discovery** : 
+
+This `401` response explicitly exposed a Digest realm for `"ThinVNC"`. This indicated that a ThinVNC web server was running on a non-standard port, presenting a highly probable attack vector.
 
 ## 3. Gaining Access
-With the ThinVNC service identified on port 60000, the Metasploit Framework was utilized to search for and exploit known vulnerabilities associated with this software.
+With the `ThinVNC` service identified on port `60000`, the Metasploit Framework was utilized to search for and exploit known vulnerabilities associated with this software.
 
 **Exploitation Steps** :
 
@@ -54,7 +69,7 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   ```bash
   msfconsole
   ```
-* Searched for applicable modules with the command 
+* Searched for applicable modules with the command : 
 
   ```bash
   search ThinVNC
@@ -72,7 +87,7 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   show options
   ```
 
-* Configured the target parameters:
+* Configured the target parameters :
 
   ```bash
   set RHOST 10.150.150.69
@@ -94,25 +109,59 @@ With the ThinVNC service identified on port 60000, the Metasploit Framework was 
   exploit
   ```
 
-**Exploit Results** : The path traversal attack successfully read the `ThinVnc.ini` file and extracted plain-text credentials.
+**Exploit Results** :
+
+The path traversal attack successfully read the `ThinVnc.ini` file and extracted plain-text credentials.
 
   *  **Extracted Username** : `desperado`
   *  **Extracted Password** : `TooComplicatedToGuessMeAhahahahahahahh`
 
-**System Compromise** : 
+**System Compromise** :
+
   1. Navigated a web browser to the ThinVNC portal at `http://10.150.150.69:60000`.
   2. Authenticated using the extracted credentials for the user `desperado`.
-  3. Accessed the ThinVNC remote desktop interface .
-  4. Navigated the remote Windows desktop to locate the target file and extracted the flag hash: `257121d50fa290b1337eadeef9ba255a61633562`.
-  5. Submitted the hash on the PwnTillDawn platform for FLAG67
-  6. The platform confirmed the machine was successfully compromised by Dannyz on 17 March 2026.
+  3. In the ThinVNC web interface, specified the Machine as `rdesktop`.
+  4. Enabled the options for "Full Color" and "Mouse Control".
+  5. Clicked "Connect" to establish the remote desktop session.
+  6. Accessed the remote Windows desktop and navigated the file explorer to locate the target file `FLAG67.txt`.
+  7. Extracted the flag hash: `2971f3459fe55db1237aad5e0f0a259a41633962`.
+  8. Submitted the hash on the PwnTillDawn platform for FLAG67.
+  9. The platform confirmed the machine `ElMariachi-PC` was successfully compromised by `Dannyz` on `17 March 2026`.
 
 ## 4. Escalate Privileges
-The initial access gained via the ThinVNC credentials provided sufficient system privileges to navigate the desktop and locate the target flag.
+The initial access gained via the ThinVNC directory traversal vulnerability provided sufficient system privileges to navigate the desktop and locate the target objective.
 
-##  6. Clear Tracks
-To adhere to post-exploitation best practices and clean up the local attacker environment, the operational history within the Metasploit Framework was purged.
+## 5. Maintain Access
+Establishing persistence mechanisms, such as creating backdoors or adding new administrator accounts, was out of scope for this specific PwnTillDawn engagement. The primary objective was achieved upon initial system compromise and flag extraction.
 
-*  Command: history -c
+## 6. Clear Tracks
+To adhere to post-exploitation best practices and sanitize the local attacker environment, the operational history within the Metasploit Framework was reviewed and subsequently purged.
 
-*  Result: Metasploit confirmed [+] Command history and history file cleared, ensuring that sensitive commands, IPs, and methodologies used during the session were removed from the local logs.
+* **Review History** :
+
+  First, the `history` command was executed to review the session's actions. The console displayed the log of commands used during the exploitation phase .
+    
+  ```bash
+  history
+  ```
+
+* **Clear History** :
+
+  The `history -c` command was then executed to wipe the record.
+  
+  ```bash
+  history -c
+  ```
+
+* **System Response** :
+
+  The console returned the message `[+] Command history and history file cleared`. This ensured that sensitive commands, target IPs, and methodologies used during the session were removed from the local Kali Linux logs.
+
+* **Confirmation** :
+
+  Finally, the `history` command was executed once more to verify the deletion. The output displayed only the current 1 history command, confirming the operational tracks were successfully and completely cleared.
+  
+  ```bash
+  history
+  ```
+
